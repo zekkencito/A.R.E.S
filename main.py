@@ -43,6 +43,7 @@ class AnalysisData(BaseModel):
     pressure: float
     totalArea: float
     currentWater: float
+    pendiente: float
 
 class TelemetryData(BaseModel):
     temperature: float
@@ -51,12 +52,13 @@ class TelemetryData(BaseModel):
     totalArea: float
     currentWater: float
     requiredWater: float
+    pendiente: float
 
 @app.post("/api/analizar-terreno")
 async def analizar_terreno(data: AnalysisData):
     try:
         # 1. Cálculo Matemático Determinista en Python (Dinámico)
-        base_water = data.totalArea * 500000
+        base_water = data.totalArea * 500
         
         # Factor de temperatura (-80°C a 20°C): hasta +50% de evaporación en su punto más caliente
         temp_factor = 1.0 + ((data.temperature + 80) / 100) * 0.50
@@ -82,12 +84,15 @@ async def analizar_terreno(data: AnalysisData):
         prompt = f"""
         {CONTEXTO_MISION}
         
+        Actúa como DaLiA, la IA táctica del Sistema A.R.E.S. Recibes telemetría por Fusión de Sensores. Hectáreas: {data.totalArea * 100}, Humedad (Térmica): {data.humidity}%, Inclinación (Fotogrametría): {data.pendiente} grados. 
+        Regla física: Terrenos con mayor pendiente requieren ajustar la cantidad o flujo de agua debido a la escorrentía provocada por la gravedad.
+        Calcula matemáticamente el agua necesaria para lavar los percloratos del suelo marciano de forma equitativa. Entrega un reporte táctico breve, directo y sin formato markdown, ideal para ser sintetizado por voz.
+        
         Se ha completado un análisis de terreno. El sistema de la nave ya calculó los recursos:
-        - Agua Requerida (Exacta): {required_water} L
-        - Reservas Asignadas: {data.currentWater} L
+        - Agua Requerida (Exacta): {required_water} kL
+        - Reservas Asignadas: {data.currentWater} kL
         - Estado Crítico: {estado}
         
-        Tu tarea es generar un breve reporte hablado (máximo 2 oraciones) informando este resultado a la tripulación.
         Si es INSUFICIENTE, lanza alerta. Si es EXCESIVO, advierte que inundar el terreno con ese exceso causará deslaves y arruinará la base.
         
         IMPORTANTE: Tu respuesta debe ser SOLO un objeto JSON válido con la siguiente estructura, sin texto adicional:
@@ -127,7 +132,7 @@ async def analizar_terreno(data: AnalysisData):
             os.remove(temp_audio_file)
         
         return {
-            "aguaRequeridaLitros": required_water,
+            "aguaRequeridaKL": required_water,
             "estado": estado,
             "explicacion": texto_hablado,
             "audioBase64": audio_base64
@@ -158,9 +163,10 @@ async def chat_endpoint(data: ChatRequest):
         - Temperatura Superficial: {data.telemetry.temperature}°C
         - Humedad del Terreno: {data.telemetry.humidity}%
         - Presión Atmosférica: {data.telemetry.pressure} Pa
+        - Pendiente Topográfica: {data.telemetry.pendiente}°
         - Cuadrante Asignado: {data.telemetry.totalArea} km²
-        - Reservas Totales de Agua: {data.telemetry.currentWater} L
-        - Agua Requerida (Último Análisis AI): {data.telemetry.requiredWater} L
+        - Reservas Totales de Agua: {data.telemetry.currentWater} kL
+        - Agua Requerida (Último Análisis AI): {data.telemetry.requiredWater} kL
         """
         
         messages_to_send = [{"role": "system", "content": CONTEXTO_MISION + "\n" + telemetry_context}]
