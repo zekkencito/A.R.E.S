@@ -1,0 +1,23 @@
+services:
+  ares_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ares_backend
+    environment:
+      - VITE_GROQ_API_KEY=${VITE_GROQ_API_KEY}
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+
+  ares_frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: ares_frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - ares_backend
+    restart: unless-stopped

@@ -62,7 +62,7 @@ export default function Dashboard({ totalArea, setTotalArea }) {
     setIsPlayingAudio(false);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const baseUrl = import.meta.env.VITE_API_URL !== undefined ? import.meta.env.VITE_API_URL : 'http://localhost:8000';
       const response = await fetch(`${baseUrl}/api/analizar-terreno`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +112,7 @@ export default function Dashboard({ totalArea, setTotalArea }) {
     setIsChatLoading(true);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const baseUrl = import.meta.env.VITE_API_URL !== undefined ? import.meta.env.VITE_API_URL : 'http://localhost:8000';
       const response = await fetch(`${baseUrl}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

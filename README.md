@@ -19,37 +19,64 @@ El sistema utiliza una arquitectura Cliente-Servidor robusta y asíncrona:
 
 ## Instalación y Despliegue
 
-### Requisitos Previos
+### 🚀 Despliegue en Servidor Casero con Docker & Cloudflare Tunnels (Recomendado)
+
+El sistema está preconfigurado en una arquitectura multi-contenedor aislada (`ares_frontend` + `ares_backend`) y ruteada a través de Nginx en el puerto **`3001`**. Esta configuración evita problemas de CORS y prepara el proyecto al 100% para ser expuesto con **Cloudflare Tunnels**.
+
+1. **Clonar el repositorio y configurar entorno**:
+   ```bash
+   git clone https://github.com/zekkencito/A.R.E.S.git
+   cd A.R.E.S
+   cp .env.example .env
+   ```
+2. **Añadir API Key de Groq**:
+   Edita el archivo `.env` y coloca tu API Key de Groq:
+   ```env
+   VITE_GROQ_API_KEY=tu_api_key_aqui
+   ```
+3. **Iniciar con Docker Compose**:
+   ```bash
+   docker compose up -d --build
+   ```
+4. **Acceso local o por túnel**:
+   - **En tu red local:** Abre tu navegador en `http://IP-DE-TU-SERVIDOR:3001` (por ejemplo, `http://192.168.1.50:3001`).
+   - **Con Cloudflare Tunnels (`cloudflared`):** Configura el túnel apuntando tu dominio hacia `http://localhost:3001`. El proxy inverso de Nginx gestionará automáticamente las peticiones y el tráfico HTTPS sin requerir ningún cambio en el código o configuración.
+
+---
+
+### Despliegue Manual para Desarrollo Local
+
+#### Requisitos Previos
 - Node.js v18+
 - Python 3.10+
 
-### Configuración del Backend
+#### Configuración del Backend
 1. Abre una terminal en la raíz del repositorio.
-2. Crea y activa un entorno virtual de Python.
+2. Crea y activa un entorno virtual de Python (`python -m venv venv && source venv/bin/activate`).
 3. Instala las dependencias requeridas:
    ```bash
    pip install -r requirements.txt
    ```
-4. Define la variable de entorno `VITE_GROQ_API_KEY` en tu sistema con tu llave de acceso.
+4. Define la variable de entorno `VITE_GROQ_API_KEY` en tu sistema o archivo `.env`.
 5. Inicia el servidor FastAPI:
    ```bash
    uvicorn main:app --host 0.0.0.0 --port 8000
    ```
 
-### Configuración del Frontend
-1. Abre una nueva terminal en la raíz del repositorio.
-2. Instala las dependencias de Node:
+#### Configuración del Frontend
+1. Abre una nueva terminal en el repositorio e instala las dependencias:
    ```bash
    npm install
    ```
-3. Crea un archivo `.env` en el directorio raíz y especifica la URL de tu backend:
+2. Crea un archivo `.env` en el directorio raíz indicando la URL de tu backend en desarrollo:
    ```env
    VITE_API_URL=http://localhost:8000
    ```
-4. Inicia el entorno de desarrollo de Vite:
+3. Inicia el entorno de desarrollo de Vite:
    ```bash
    npm run dev
    ```
 
 ## Licencia
 Desarrollado en exclusiva para el Mars Challenge 2026. Todos los derechos reservados.
+
